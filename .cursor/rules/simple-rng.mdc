@@ -1,0 +1,5 @@
+---
+description:
+globs: don't use the API to get a random NFT. get the total number of tokens then simply use javascript math.random to get a random one.
+alwaysApply: true
+---

@@ -3,6 +3,8 @@ import NFTCard from './components/NFTCard';
 import { fetchRandomNFTs } from './services/nftService';
 import rarityLegendStyles from './styles/AppStyles';
 import { RARITY_RANGES } from './constants/rarityConfig';
+import { CHAIN_OPTIONS } from './constants/chains';
+import ChainDropdown from './components/ChainDropdown';
 
 function App() {
   const [nfts, setNfts] = useState({
@@ -12,6 +14,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [lazyLionsChain, setLazyLionsChain] = useState("Lazy Lions"); // Default to Lazy Lions
+  const [chainRunnersChain, setChainRunnersChain] = useState("Chain Runners"); // Default to Chain Runners
 
   // Load initial NFTs on component mount
   useEffect(() => {
@@ -23,22 +27,20 @@ function App() {
     setError(null);
     
     try {
-      const randomNFTs = await fetchRandomNFTs();
+      // Step 1: Select chain (already done via state)
+      // Step 2: Get basic info and load random image
+      const randomNFTs = await fetchRandomNFTs(lazyLionsChain, chainRunnersChain);
       setNfts(randomNFTs);
     } catch (err) {
       console.error('Error loading NFTs:', err);
-      setError('Failed to load NFTs. Please try again.');
+      setError(`Failed to load NFTs: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleRandomize = () => {
-    // Force a complete refresh by clearing existing NFTs first and updating refresh key
-    setNfts({
-      lazyLions: null,
-      chainRunners: null
-    });
+    // Step 4: Repeat if "randomize NFTs" is clicked
     setRefreshKey(prev => prev + 1);
     loadRandomNFTs();
   };
@@ -127,6 +129,11 @@ function App() {
               </h2>
               <div className="w-16 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto rounded-full"></div>
             </div>
+            <ChainDropdown
+              options={CHAIN_OPTIONS}
+              selectedChain={lazyLionsChain}
+              onChainChange={setLazyLionsChain}
+            />
             <NFTCard 
               key={`lazy-lions-${refreshKey}-${nfts.lazyLions?.id || 'loading'}`}
               nft={nfts.lazyLions} 
@@ -142,6 +149,11 @@ function App() {
               </h2>
               <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-purple-500 mx-auto rounded-full"></div>
             </div>
+            <ChainDropdown
+              options={CHAIN_OPTIONS}
+              selectedChain={chainRunnersChain}
+              onChainChange={setChainRunnersChain}
+            />
             <NFTCard 
               key={`chain-runners-${refreshKey}-${nfts.chainRunners?.id || 'loading'}`}
               nft={nfts.chainRunners} 
