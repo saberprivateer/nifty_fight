@@ -2,6 +2,7 @@
   "name": "nifty-fight",
   "version": "1.0.0",
   "description": "A React app that displays random NFTs from Lazy Lions and Chain Runners collections",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "vite",

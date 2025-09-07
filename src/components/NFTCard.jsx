@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getRarity } from '../constants/rarityConfig';
 
 const NFTCard = ({ nft, isLoading = false }) => {
   const [showAllTraits, setShowAllTraits] = useState(false);
@@ -53,7 +54,7 @@ const NFTCard = ({ nft, isLoading = false }) => {
 
       {/* NFT Name */}
       <h3 className="text-xl font-bold text-gray-800 mb-2 truncate" title={nft.name}>
-        {nft.name}
+        {nft.name} <span className="text-gray-500 text-sm">/ {nft.totalSupply}</span>
       </h3>
 
       {/* Collection Name */}
@@ -86,24 +87,21 @@ const NFTCard = ({ nft, isLoading = false }) => {
                     <span className="font-medium text-gray-700">{trait.key}:</span>
                     <span className="ml-2 text-gray-600">{trait.value}</span>
                   </div>
-                  {trait.rarity && (
+                  {trait.rarity ? (
                     <div className="text-right text-xs ml-2">
-                      <div className={`font-medium ${
-                        parseFloat(trait.rarity.percentage) < 1 ? 'text-red-600' :
-                        parseFloat(trait.rarity.percentage) < 5 ? 'text-orange-600' :
-                        parseFloat(trait.rarity.percentage) < 10 ? 'text-yellow-600' :
-                        'text-gray-500'
-                      }`}>
-                        {trait.rarity.count} ({trait.rarity.percentage}%)
-                        {parseFloat(trait.rarity.percentage) < 1 && ' 🔥'}
-                        {parseFloat(trait.rarity.percentage) >= 1 && parseFloat(trait.rarity.percentage) < 5 && ' ⭐'}
-                      </div>
-                      {trait.rarity.floorPrice && (
-                        <div className="text-green-600">
-                          {trait.rarity.floorPrice} ETH
-                        </div>
-                      )}
+                      {(() => {
+                        const rarity = getRarity(parseFloat(trait.rarity.percentage));
+                        return rarity ? (
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${rarity.bgColor} ${rarity.textColor} ${rarity.borderColor}`}>
+                            {rarity.emoji} {rarity.label}
+                          </div>
+                        ) : (
+                          <span className="text-gray-500 text-sm">N/A</span>
+                        );
+                      })()}
                     </div>
+                  ) : (
+                    <span className="text-gray-500 text-sm">N/A</span>
                   )}
                 </div>
               </div>

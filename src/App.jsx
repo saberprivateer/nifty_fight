@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import NFTCard from './components/NFTCard';
 import { fetchRandomNFTs } from './services/nftService';
+import rarityLegendStyles from './styles/AppStyles';
+import { RARITY_RANGES } from './constants/rarityConfig';
 
 function App() {
   const [nfts, setNfts] = useState({
@@ -9,6 +11,7 @@ function App() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Load initial NFTs on component mount
   useEffect(() => {
@@ -31,6 +34,12 @@ function App() {
   };
 
   const handleRandomize = () => {
+    // Force a complete refresh by clearing existing NFTs first and updating refresh key
+    setNfts({
+      lazyLions: null,
+      chainRunners: null
+    });
+    setRefreshKey(prev => prev + 1);
     loadRandomNFTs();
   };
 
@@ -89,6 +98,25 @@ function App() {
           </div>
         )}
 
+        {/* Rarity Legend */}
+        <div className="container mx-auto mt-8">
+          <div className={rarityLegendStyles.container}>
+            <h2 className={rarityLegendStyles.title}>Rarity Legend</h2>
+            <div>
+              {RARITY_RANGES.map((range, index) => (
+                <div key={index} className={rarityLegendStyles.legendItem}>
+                  <div className={`${rarityLegendStyles.rarityBlock} ${range.bgColor} ${range.textColor} ${range.borderColor}`}>
+                    {range.emoji}
+                  </div>
+                  <span className={rarityLegendStyles.rarityText}>
+                    {range.label} ({range.max === Infinity ? `>= ${range.min}%` : `< ${range.max}%`})
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* NFT Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Lazy Lions Card */}
@@ -100,6 +128,7 @@ function App() {
               <div className="w-16 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 mx-auto rounded-full"></div>
             </div>
             <NFTCard 
+              key={`lazy-lions-${refreshKey}-${nfts.lazyLions?.id || 'loading'}`}
               nft={nfts.lazyLions} 
               isLoading={isLoading && !nfts.lazyLions}
             />
@@ -114,6 +143,7 @@ function App() {
               <div className="w-16 h-1 bg-gradient-to-r from-blue-400 to-purple-500 mx-auto rounded-full"></div>
             </div>
             <NFTCard 
+              key={`chain-runners-${refreshKey}-${nfts.chainRunners?.id || 'loading'}`}
               nft={nfts.chainRunners} 
               isLoading={isLoading && !nfts.chainRunners}
             />
